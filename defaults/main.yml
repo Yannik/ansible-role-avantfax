@@ -1,0 +1,8 @@
+avantfax_version: 3.3.5
+avantfax_web_dir: /var/www/avantfax
+avantfax_db_user: avantfax
+avantfax_db_dbname: avantfax
+avantfax_php_user: avantfax
+avantfax_php_group: www-data
+avantfax_setup_run: false
+avantfax_admin_email: root@localhost

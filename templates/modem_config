@@ -1,0 +1,6 @@
+#
+## AvantFAX
+#
+FaxRcvdCmd:     "bin/faxrcvd.php"
+DynamicConfig:  "bin/dynconf.php"
+UseJobTSI:      true

@@ -1,0 +1,146 @@
+- name: Install packages required by avantfax
+  apt: name={{ item }} state=present
+  with_items:
+    - imagemagick
+    - tesseract-ocr
+
+- name: Download avantfax
+  get_url:
+    url: http://downloads.sourceforge.net/project/avantfax/avantfax-{{ avantfax_version }}.tgz
+    dest: /usr/src/avantfax-{{ avantfax_version }}.tgz
+
+- name: Unpack avantfax
+  shell: tar zxfv avantfax-{{ avantfax_version }}.tgz
+  args:
+    chdir: /usr/src
+    creates: /usr/src/avantfax-{{ avantfax_version }}
+
+- name: Copy avantfax folder over
+  shell: cp -r /usr/src/avantfax-{{ avantfax_version }}/avantfax {{ avantfax_web_dir }}
+  args:
+    creates: "{{ avantfax_web_dir }}"
+
+- name: Copy composer.json over
+  copy: src=composer.json dest={{ avantfax_web_dir }}
+  register: avantfax_composer_file_state
+
+- name: Composer install
+  command: composer install chdir={{ avantfax_web_dir }}
+  when: avantfax_composer_file_state|changed
+
+- name: Fix autoloader
+  blockinfile:
+    dest: "{{ avantfax_web_dir }}/includes/classes.php"
+    insertafter: "<\\?php"
+    marker: "// {mark} ANSIBLE MANAGED BLOCK"
+    content: |
+      spl_autoload_register ('__autoload');
+      require __DIR__ . '/../vendor/autoload.php';
+
+- name: Install local_config.php
+  template:
+    src: local_config.php
+    dest: "{{ avantfax_web_dir }}/includes"
+
+- name: Fix permissions
+  file:
+    path: "{{ avantfax_web_dir }}"
+    owner: "{{ avantfax_php_user }}"
+    group: "{{ avantfax_php_group }}"
+    mode: 0770
+    recurse: yes
+  changed_when: false
+
+- name: Add mysql user
+  mysql_user:
+    name={{ avantfax_db_user }}
+    password={{ avantfax_db_password }}
+    priv={{ avantfax_db_dbname }}.*:ALL
+    host=localhost
+    state=present
+
+- name: Add mysql db
+  mysql_db:
+    name={{ avantfax_db_dbname }}
+    encoding=utf8
+    collation=utf8_general_ci
+    state=present
+  register: avantfax_mysql_db_created
+
+- name: Create mysql tables
+  shell: mysql {{ avantfax_db_dbname }} < /usr/src/avantfax-{{ avantfax_version }}/create_tables.sql
+  when: avantfax_mysql_db_created|changed
+
+- name: Get list of modems
+  shell: find /etc/hylafax/ -name "config\.*" | sed 's#/etc/hylafax/config.##g'
+  changed_when: false
+  register: avantfax_modem_lookup
+
+- name: Insert modems into mysql table
+  command: >
+    mysql --user {{ avantfax_db_user }} -p{{ avantfax_db_password }} {{ avantfax_db_dbname }}
+    -e "INSERT INTO Modems SET device='{{ item }}', alias='{{ item }}', contact='{{ avantfax_email }}'"
+  with_items: "{{ avantfax_modem_lookup.stdout_lines|default([]) }}"
+  when: avantfax_mysql_db_created|changed
+
+- name: Set admin email
+  command: >
+    mysql --user {{ avantfax_db_user }} -p{{ avantfax_db_password }} {{ avantfax_db_dbname }}
+    -e "update UserAccount set email='{{ avantfax_email }}' where uid=1"
+  when: avantfax_mysql_db_created|changed
+
+- name: Configure modems to use avantfax
+  blockinfile:
+    content: "{{ lookup('template', 'modem_config') }}"
+    dest: "/etc/hylafax/config.{{ item }}"
+  with_items: "{{ avantfax_modem_lookup.stdout_lines|default([]) }}"
+
+- name: Configure hylafax to notify avantfax
+  blockinfile:
+    content: |
+      # AvantFAX
+      NotifyCmd:      "bin/notify.php"
+    dest: /etc/hylafax/config
+
+- name: Configure hylfax job format
+  blockinfile:
+    content: |
+      # JobFmt for AvantFAX
+      JobFmt: "%-3j %3i %1a %15o %40M %-12.12e %5P %5D %7z %.25s"
+    dest: /etc/hylafax/hyla.conf
+
+- name: Configure sendfax cover page
+  blockinfile:
+    content: |
+      CoverCmd:         "bin/faxcover.php"
+    dest: /etc/hylafax/sendfax.conf
+    create: yes
+
+- name: Create wrapper scripts which allow uucp to execute avantfax scripts
+  template:
+    src: wrapper
+    dest: /var/spool/hylafax/bin/{{ item }}
+    mode: ugo+rx
+  with_items:
+    - notify.php
+    - dynconf.php
+    - faxrcvd.php
+    - faxcover.php
+
+- name: Update sudoers
+  template: src=sudoers dest=/etc/sudoers.d/avantfax
+
+# Previous this was '^avantfax@127.0.01', which worked for faxstat
+# However, avantfax uses the '-o' option of sendfax to set the owner
+# of the fax (which does exist in hosts.hfaxd!), which then prompts
+# the password and avantfax subsequently fails :-(
+# So apparantly there is no way around giving all users on
+# 127.0.0.1 access...
+- name: Give avantfax access to hylafax
+  lineinfile:
+    line: '127.0.0.1'
+    dest: /etc/hylafax/hosts.hfaxd
+    insertbefore: BOF
+
+- name: Ensure avantfax user is in uucp group so faxrcvd.php can read files from /var/spool/hylafax/recvq
+  user: name={{ avantfax_php_user }} append=yes groups=uucp

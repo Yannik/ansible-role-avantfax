@@ -1,0 +1,5 @@
+{{ avantfax_php_user }} ALL = NOPASSWD: /usr/sbin/faxdeluser, /usr/sbin/faxadduser -u * -p * *
+uucp     ALL=({{ avantfax_php_user }}) NOPASSWD: {{ avantfax_web_dir }}/includes/faxrcvd.php
+uucp     ALL=({{ avantfax_php_user }}) NOPASSWD: {{ avantfax_web_dir }}/includes/notify.php
+uucp     ALL=({{ avantfax_php_user }}) NOPASSWD: {{ avantfax_web_dir }}/includes/dynconf.php
+uucp     ALL=({{ avantfax_php_user }}) NOPASSWD: {{ avantfax_web_dir }}/includes/faxcover.php

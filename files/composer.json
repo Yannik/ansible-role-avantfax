@@ -1,0 +1,16 @@
+{
+    "repositories": [
+        {
+            "type": "pear",
+            "url": "https://pear.php.net"
+        }
+    ],
+    "require": {
+        "pear-pear.php.net/MDB2": "2.5.0b5 as 2.5.0",
+        "pear-pear.php.net/MDB2_Driver_mysql": "1.5.0-beta4",
+        "pear-pear.php.net/Mail_Mime": "*",
+        "pear-pear.php.net/Mail": "*",
+        "pear-pear.php.net/Net_SMTP": "*"
+    }
+}
+

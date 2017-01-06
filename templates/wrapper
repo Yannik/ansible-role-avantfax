@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+# Example command: bin/faxrcvd.php "recvq/fax000000007.tif" "ttyIAX0" "000000082" "" "anonymous" "Anonymous" "<NONE>" "s"e
+# Make sure that the file in the recvq is readable by the group (group is set to uucp, which the avantfax php user belongs to),
+# so the avantfax php user which we sudo to can actually read it
+if [ "$0" == "bin/faxrcvd.php" ]; then
+    chmod g+r "$1"
+fi
+
+sudo -u {{ avantfax_php_user }} {{ avantfax_web_dir }}/includes/{{ item }} "$@"
