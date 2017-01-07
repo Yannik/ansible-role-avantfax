@@ -53,18 +53,18 @@
 
 - name: Add mysql user
   mysql_user:
-    name={{ avantfax_db_user }}
-    password={{ avantfax_db_password }}
-    priv={{ avantfax_db_dbname }}.*:ALL
-    host=localhost
-    state=present
+    name: "{{ avantfax_db_user }}"
+    password: "{{ avantfax_db_password }}"
+    priv: "{{ avantfax_db_dbname }}.*:ALL"
+    host: localhost
+    state: present
 
 - name: Add mysql db
   mysql_db:
-    name={{ avantfax_db_dbname }}
-    encoding=utf8
-    collation=utf8_general_ci
-    state=present
+    name: "{{ avantfax_db_dbname }}"
+    encoding: utf8
+    collation: utf8_general_ci
+    state: present
   register: avantfax_mysql_db_created
 
 - name: Create mysql tables
