@@ -1,0 +1,7 @@
+---
+- hosts: localhost
+  remote_user: root
+  roles:
+    - ansible-role-avantfax
+  vars:
+    avantfax_db_password: passw0rd
