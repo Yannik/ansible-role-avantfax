@@ -57,6 +57,9 @@
     recurse: yes
   changed_when: false
 
+- name: Install python-mysqldb (required for ansible mysql_* modules)
+  apt: pkg=python-mysqldb state=present
+
 - name: Add mysql user
   mysql_user:
     name: "{{ avantfax_db_user }}"
