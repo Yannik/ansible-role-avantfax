@@ -15,6 +15,12 @@
     chdir: /usr/src
     creates: /usr/src/avantfax-{{ avantfax_version }}
 
+- name: Ensure avantfax user exists
+  user: name={{ avantfax_php_user }} createhome=no
+
+- name: Ensure avantfax group exists
+  group: name={{ avantfax_php_group }}
+
 - name: Copy avantfax folder over
   shell: cp -r /usr/src/avantfax-{{ avantfax_version }}/avantfax {{ avantfax_web_dir }}
   args:
