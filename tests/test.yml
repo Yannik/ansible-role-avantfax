@@ -5,6 +5,7 @@
     - role: Yannik.php
       php_install_versions: ['5.6']
     - geerlingguy.composer
+    - role: Yannik.hylafax
     - ansible-role-avantfax
   vars:
     avantfax_db_password: passw0rd
