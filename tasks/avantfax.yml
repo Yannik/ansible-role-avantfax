@@ -88,14 +88,14 @@
 - name: Insert modems into mysql table
   command: >
     mysql --user {{ avantfax_db_user }} -p{{ avantfax_db_password }} {{ avantfax_db_dbname }}
-    -e "INSERT INTO Modems SET device='{{ item }}', alias='{{ item }}', contact='{{ avantfax_email }}'"
+    -e "INSERT INTO Modems SET device='{{ item }}', alias='{{ item }}', contact='{{ avantfax_admin_email }}'"
   with_items: "{{ avantfax_modem_lookup.stdout_lines|default([]) }}"
   when: avantfax_mysql_db_created|changed
 
 - name: Set admin email
   command: >
     mysql --user {{ avantfax_db_user }} -p{{ avantfax_db_password }} {{ avantfax_db_dbname }}
-    -e "update UserAccount set email='{{ avantfax_email }}' where uid=1"
+    -e "update UserAccount set email='{{ avantfax_admin_email }}' where uid=1"
   when: avantfax_mysql_db_created|changed
 
 - name: Configure modems to use avantfax
