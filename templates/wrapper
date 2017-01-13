@@ -7,4 +7,16 @@ if [ "$0" == "bin/faxrcvd.php" ]; then
     chmod g+r "$1"
 fi
 
+# Example command: bin/notify.php "doneq/q26" "done" "0:00:33"
+# doneq/q26 is the actual queue file, which contains the status, sent files
+# etc.
+# Hylafax stupidly sets the group ownership of the sent files (docq/*)
+# to '60002', so we just fix that for all the files in the docq.
+# Parsing the doneq file takes too much work.
+# We could also add the avantfax user to group 60002, but that seems hella
+# unportable.
+if [ "$0" == "bin/notify.php" ]; then
+    chgrp uucp /var/spool/hylafax/docq/*
+fi
+
 sudo -u {{ avantfax_php_user }} {{ avantfax_web_dir }}/includes/{{ item }} "$@"
