@@ -108,7 +108,7 @@
   blockinfile:
     content: |
       # AvantFAX
-      NotifyCmd:      "bin/notify.php"
+      NotifyCmd:      "bin/avantfax-notify"
     dest: /etc/hylafax/config
 
 - name: Configure hylfax job format
@@ -121,20 +121,20 @@
 - name: Configure sendfax cover page
   blockinfile:
     content: |
-      CoverCmd:         "bin/faxcover.php"
+      CoverCmd:         "bin/avantfax-faxcover"
     dest: /etc/hylafax/sendfax.conf
     create: yes
 
 - name: Create wrapper scripts which allow uucp to execute avantfax scripts
   template:
     src: wrapper
-    dest: /var/spool/hylafax/bin/{{ item }}
+    dest: /var/spool/hylafax/bin/{{ item.src }}
     mode: ugo+rx
   with_items:
-    - notify.php
-    - dynconf.php
-    - faxrcvd.php
-    - faxcover.php
+    - { src: "avantfax-notify", target: "notify.php" }
+    - { src: "avantfax-dynconf", target: "dynconf.php" }
+    - { src: "avantfax-faxrcvd", target: "faxrcvd.php" }
+    - { src: "avantfax-faxcover", target: "faxcover.php" }
 
 - name: Update sudoers
   template: src=sudoers dest=/etc/sudoers.d/avantfax

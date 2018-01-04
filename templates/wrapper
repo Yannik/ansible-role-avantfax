@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
-# Example command: bin/faxrcvd.php "recvq/fax000000007.tif" "ttyIAX0" "000000082" "" "anonymous" "Anonymous" "<NONE>" "s"e
+# Example command: bin/avantfax-faxrcvd "recvq/fax000000007.tif" "ttyIAX0" "000000082" "" "anonymous" "Anonymous" "<NONE>" "s"e
 # Make sure that the file in the recvq is readable by the group (group is set to uucp, which the avantfax php user belongs to),
 # so the avantfax php user which we sudo to can actually read it
-if [ "$0" == "bin/faxrcvd.php" ]; then
+if [ "$0" == "bin/avantfax-faxrcvd" ]; then
     chmod g+r "$1"
 fi
 
-# Example command: bin/notify.php "doneq/q26" "done" "0:00:33"
+# Example command: bin/avantfax-notify "doneq/q26" "done" "0:00:33"
 # doneq/q26 is the actual queue file, which contains the status, sent files
 # etc.
 # Hylafax stupidly sets the group ownership of the sent files (docq/*)
@@ -15,8 +15,8 @@ fi
 # Parsing the doneq file takes too much work.
 # We could also add the avantfax user to group 60002, but that seems hella
 # unportable.
-if [ "$0" == "bin/notify.php" ]; then
+if [ "$0" == "bin/avantfax-notify" ]; then
     chgrp uucp /var/spool/hylafax/docq/*
 fi
 
-sudo -u {{ avantfax_php_user }} {{ avantfax_web_dir }}/includes/{{ item }} "$@"
+sudo -u {{ avantfax_php_user }} {{ avantfax_web_dir }}/includes/{{ item.target }} "$@"
