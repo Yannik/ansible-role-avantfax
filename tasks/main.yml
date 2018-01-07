@@ -1,2 +1,2 @@
-- include: avantfax.yml
+- import_tasks: avantfax.yml
   tags: avantfax
