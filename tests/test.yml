@@ -4,6 +4,7 @@
   roles:
     - role: Yannik.php
       php_install_versions: ['5.6']
+      php_default_cli_version: '5.6'
     - geerlingguy.composer
     - role: Yannik.hylafax
     - ansible-role-avantfax
