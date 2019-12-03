@@ -32,7 +32,7 @@
 
 - name: Composer install
   command: composer install chdir={{ avantfax_web_dir }}
-  when: avantfax_composer_file_state|changed
+  when: avantfax_composer_file_state is changed
 
 - name: Fix autoloader
   blockinfile:
@@ -78,7 +78,7 @@
 
 - name: Create mysql tables
   shell: mysql {{ avantfax_db_dbname }} < /usr/src/avantfax-{{ avantfax_version }}/create_tables.sql
-  when: avantfax_mysql_db_created|changed
+  when: avantfax_mysql_db_created is changed
 
 - name: Get list of modems
   shell: find /etc/hylafax/ -name "config\.*" | sed 's#/etc/hylafax/config.##g'
@@ -90,13 +90,13 @@
     mysql --user {{ avantfax_db_user }} -p{{ avantfax_db_password }} {{ avantfax_db_dbname }}
     -e "INSERT INTO Modems SET device='{{ item }}', alias='{{ item }}', contact='{{ avantfax_admin_email }}'"
   with_items: "{{ avantfax_modem_lookup.stdout_lines|default([]) }}"
-  when: avantfax_mysql_db_created|changed
+  when: avantfax_mysql_db_created is changed
 
 - name: Set admin email
   command: >
     mysql --user {{ avantfax_db_user }} -p{{ avantfax_db_password }} {{ avantfax_db_dbname }}
     -e "update UserAccount set email='{{ avantfax_admin_email }}' where uid=1"
-  when: avantfax_mysql_db_created|changed
+  when: avantfax_mysql_db_created is changed
 
 - name: Configure modems to use avantfax
   blockinfile:
