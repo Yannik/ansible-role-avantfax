@@ -4,6 +4,9 @@ python: "2.7"
 
 dist: bionic
 
+services:
+  - mysql
+
 addons:
   apt:
     packages:
