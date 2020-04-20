@@ -15,3 +15,5 @@ define('OCR_BINARY', "/usr/bin/tesseract");
 define('ENABLE_OCR_SUPPORT', true);
 
 $WWWUSER = '{{ avantfax_php_user }}';
+
+$NOTIFY_INCLUDE_PDF = true;
