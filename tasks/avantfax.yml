@@ -76,6 +76,12 @@
     state: present
   register: avantfax_mysql_db_created
 
+# fix fatal errors when inserting record with int field set to ''
+- name: Remove STRICT_TRANS_TABLES from sql_mode
+  copy:
+    src: sqlmode.cnf
+    dest: /etc/mysql/conf.d/
+
 - name: Create mysql tables
   shell: mysql {{ avantfax_db_dbname }} < /usr/src/avantfax-{{ avantfax_version }}/create_tables.sql
   when: avantfax_mysql_db_created is changed
