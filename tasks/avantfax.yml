@@ -14,6 +14,7 @@
   args:
     chdir: /usr/src
     creates: /usr/src/avantfax-{{ avantfax_version }}
+  register: avantfax_src
 
 - name: Ensure avantfax user exists
   user: name={{ avantfax_php_user }} createhome=no
@@ -22,9 +23,11 @@
   group: name={{ avantfax_php_group }}
 
 - name: Copy avantfax folder over
-  shell: cp -r /usr/src/avantfax-{{ avantfax_version }}/avantfax {{ avantfax_web_dir }}
-  args:
-    creates: "{{ avantfax_web_dir }}"
+  copy:
+    src: /usr/src/avantfax-{{ avantfax_version }}/avantfax/
+    dest: "{{ avantfax_web_dir }}"
+    remote_src: yes
+  when: avantfax_src is changed
 
 - name: Copy composer.json over
   copy: src=composer.json dest={{ avantfax_web_dir }}
