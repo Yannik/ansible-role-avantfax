@@ -1,4 +1,4 @@
-avantfax_version: 3.3.5
+avantfax_version: 3.3.7
 avantfax_web_dir: /var/www/avantfax
 avantfax_db_user: avantfax
 avantfax_db_dbname: avantfax
