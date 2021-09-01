@@ -156,9 +156,12 @@
 # 127.0.0.1 access...
 - name: Give avantfax access to hylafax
   lineinfile:
-    line: '127.0.0.1'
+    line: "{{ item }}"
     dest: /etc/hylafax/hosts.hfaxd
     insertbefore: BOF
+  with_items:
+    - '127.0.0.1'
+    - '\:\:1'
 
 - name: Ensure avantfax user is in uucp group so faxrcvd.php can read files from /var/spool/hylafax/recvq
   user: name={{ avantfax_php_user }} append=yes groups=uucp
