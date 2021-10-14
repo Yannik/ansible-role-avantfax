@@ -90,7 +90,7 @@
   when: avantfax_mysql_db_created is changed
 
 - name: Get list of modems
-  shell: find /etc/hylafax/ -name "config\.*" | sed 's#/etc/hylafax/config.##g'
+  shell: find /var/spool/hylafax/etc/ -name "config\.*" | sed 's#/var/spool/hylafax/etc/config.##g'
   changed_when: false
   register: avantfax_modem_lookup
 
@@ -110,7 +110,7 @@
 - name: Configure modems to use avantfax
   blockinfile:
     content: "{{ lookup('template', 'modem_config') }}"
-    dest: "/etc/hylafax/config.{{ item }}"
+    dest: "/var/spool/hylafax/etc/config.{{ item }}"
   with_items: "{{ avantfax_modem_lookup.stdout_lines|default([]) }}"
 
 - name: Configure hylafax to notify avantfax
@@ -118,7 +118,7 @@
     content: |
       # AvantFAX
       NotifyCmd:      "bin/avantfax-notify"
-    dest: /etc/hylafax/config
+    dest: /var/spool/hylafax/etc/config
 
 - name: Configure hylfax job format
   blockinfile:
@@ -157,7 +157,7 @@
 - name: Give avantfax access to hylafax
   lineinfile:
     line: "{{ item }}"
-    dest: /etc/hylafax/hosts.hfaxd
+    dest: /var/spool/hylafax/etc/hylafax/hosts.hfaxd
     insertbefore: BOF
   with_items:
     - '127.0.0.1'
