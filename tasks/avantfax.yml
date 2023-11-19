@@ -60,6 +60,19 @@
     recurse: yes
   changed_when: false
 
+- name: Force php5.6
+  replace:
+    path: "{{ item }}"
+    regexp: '\#\!\/usr\/bin\/php'
+    replace: '#!/usr/bin/php5.6'
+  loop:
+    - "{{ avantfax_web_dir }}/includes/faxrcvd.php"
+    - "{{ avantfax_web_dir }}/includes/notify.php"
+    - "{{ avantfax_web_dir }}/includes/faxcover.php"
+    - "{{ avantfax_web_dir }}/includes/dynconf.php"
+    - "{{ avantfax_web_dir }}/includes/avantfaxcron.php"
+  tags: special
+
 - name: Install python-mysqldb (required for ansible mysql_* modules)
   apt: pkg=python-mysqldb state=present
 
